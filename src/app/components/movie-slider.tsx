@@ -29,7 +29,7 @@ export default function MovieSlider() {
 //   }
 
   return (
-    <div className="relative w-full h-[90vh]">
+    <div className="relative w-full h-[100vh]">
       <Swiper
         modules={[Autoplay, EffectFade]}
         effect="fade"
@@ -54,8 +54,11 @@ export default function MovieSlider() {
                 className="w-full h-full bg-cover bg-center relative flex items-center"
                 style={{ backgroundImage: `url(${m.meta.ophim_poster_url[0]})` }}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_70%,rgba(0,0,0,0.9)_100%)] bg-noise"></div>
-                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.6)_0.5px,transparent_0.5px)] [background-size:3px_3px]"></div>
+              <div className="absolute inset-0"> 
+                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_70%,rgba(0,0,0,0.6)_100%)]"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
+              </div>                
+              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.3)_0.5px,transparent_0.5px)] [background-size:3px_3px]"></div>
 
                 <div className="relative z-10 max-w-2xl px-10 text-white space-y-4">
                   {m.ophim_title_img ? (
@@ -73,7 +76,7 @@ export default function MovieSlider() {
                   </p>
                   <p className="text-gray-300 max-w-xl">{m.desc}</p>
 
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap mt-2">
                     <Badge variant="yellow">{m.meta.ophim_quality?.[0]}</Badge>
                     <Badge variant="softYellow">{m.meta.ophim_year?.[0]}</Badge>
                     <Badge variant="outline">{m.meta.ophim_runtime?.[0]}</Badge>
@@ -91,7 +94,7 @@ export default function MovieSlider() {
                       </Badge>
                     ))}
                   </div>
-                  <div className="mt-4 text-sm text-white/80 leading-relaxed line-clamp-2">
+                  <div className="mt-4 text-[14px] text-white/80 leading-relaxed line-clamp-2 mt-6">
                     {decode(m.excerpt || "")}
                   </div>
 
