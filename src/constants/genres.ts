@@ -9,6 +9,10 @@ export const GENRES_MAP: Record<string, string> = {
     "vo-thuat": "Võ thuật",
     "lang-man": "Lãng mạn",
     "phieu-luu": "Phiêu lưu",
-    
+    "chinh-kich": "Chính kịch",
+    "tai-lieu" : "Tài liệu",
+    "hinh-su"  : " Hình sự",
+    "gia-dinh" : "Gia đình",
+    "tinh-cam" : "Tình cảm",
   };
   

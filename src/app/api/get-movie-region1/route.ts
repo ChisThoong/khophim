@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const perPage = searchParams.get("per_page") || "10";
 
     const res = await fetch(
-      `https://phimchill.site/wp-json/ophim/v1/region/${region}?per_page=${perPage}`,
+      `https://phimchill.site/wp-json/wp/v2/ophim?ophim_regions=${region}&per_page=${perPage}&orderby=date&order=desc`,
       { cache: "no-store" }
     );
 
