@@ -7,7 +7,7 @@ import RegionMovie from "./components/region-movie";
 export default function Home() {
   return (
     <main className=" min-h-screen text-white bg-[#191b24]">
-      <Navbar />
+      {/* <Navbar /> */}
       <MovieSlider />
       <div className = "bg-[#191b24] p-6">
         <div className="px-6 py-6 space-y-2 rounded-xl" 
