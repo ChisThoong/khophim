@@ -3,9 +3,9 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import MovieHoverOverlay from "./movie-hover-overlay";
+import MovieHoverOverlay from "../global/movie-hover-overlay";
 import { motion, AnimatePresence } from "framer-motion";
-import Badge from "./badge";
+import Badge from "../global/badge";
 
 interface MovieMeta {
   ophim_episode?: string[]; // ["Hoàn Tất (20/20)"]
@@ -123,7 +123,7 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
         setHoveredMovie(null);
         setHoveredMovieData(null);
       }
-    }, 100); // chỉ cần 100ms là đủ
+    }, 100); 
   };
 
   const handleOverlayMouseEnter = () => {
@@ -207,7 +207,7 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
                       onMouseLeave={handleMouseLeave}
                       onMouseEnter={(e) => handleMouseEnter(movie, index, e)}
                     >
-                      <a href={movie.link} target="_blank" rel="noopener noreferrer" className="block">
+                      <a  href={`/movie/${movie.slug}`} target="_blank" rel="noopener noreferrer" className="block">
                         <div className="relative rounded-xl overflow-hidden">
                           <img
                             alt={movie.title}

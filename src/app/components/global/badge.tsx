@@ -11,13 +11,20 @@ interface BadgeProps {
     | "transparent"
     | "softYellow"
     | "green";
+  className?: string;
+  icon?: React.ReactNode; 
 }
 
-export default function Badge({ children, variant = "default" }: BadgeProps) {
+export default function Badge({
+  children,
+  variant = "default",
+  className,
+  icon,
+}: BadgeProps) {
   return (
     <span
       className={clsx(
-        "text-xs font-semibold rounded px-2.5 py-1",
+        "text-xs font-semibold rounded px-2.5 py-1 inline-flex items-center gap-2",
         variant === "yellow" &&
           "bg-[linear-gradient(39deg,rgb(254,207,89),rgb(255,241,204))] text-black",
         variant === "white" && "bg-white text-black",
@@ -26,11 +33,12 @@ export default function Badge({ children, variant = "default" }: BadgeProps) {
         variant === "transparent" && "bg-white/20 text-white",
         variant === "softYellow" &&
           "text-[#FFDE8A] border border-[rgb(254,207,89)]",
-        variant === "green" && "bg-green-600 text-white"
+        variant === "green" && "bg-green-600 text-white",
+        className
       )}
     >
+      {icon && <span className="flex items-center">{icon}</span>}
       {children}
     </span>
   );
 }
-

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Navbar from "./components/navbar";
-import MovieSlider from "./components/movie-slider";
-import RegionMovie from "./components/region-movie";
+import Navbar from "./components/layout/navbar";
+import MovieSlider from "./components/home/movie-slider";
+import RegionMovie from "./components/home/region-movie";
 
 
 export default function Home() {

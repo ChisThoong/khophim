@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Play, Heart, Info } from "lucide-react";
 import { GENRES_MAP } from "@/constants/genres";
 import { CATEGORIES_MAP } from "@/constants/categories";
-import Badge from "./badge";
+import Badge from "../global/badge";
 import { decode } from "he";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules"; 

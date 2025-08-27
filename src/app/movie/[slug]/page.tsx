@@ -1,26 +1,18 @@
-// movie/[slug]/page.tsx
-import MovieDetail from "@/app/components/movie-detail";
+import MovieDetail from "@/app/components/detail/movie-detail";
 
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
+export default async function MoviePage(props: { params: Promise<{ slug: string }> }) {
+  const { slug } = await props.params; 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-export default function MoviePage({ params }: PageProps) {
-  // Bạn có thể sử dụng params.slug để fetch data từ API
-  console.log('Movie slug:', params.slug);
-  
-  const movieData = {
-    title: "Tủ Quần Áo Lọ Lem",
-    englishTitle: "Cinderella Closet", 
-    rating: 8.0,
-    imdbRating: 8.2,
-    year: 2025,
-    episodes: "8/10 tập",
-    genres: ["Chính Kịch", "Live Action", "Tình Cảm"],
-    description: "Một câu chuyện tình lãng mạn hiện đại về một cô gái trẻ tìm thấy tình yêu thông qua thời trang và sự tự tin."
-  };
+  const res = await fetch(`${baseUrl}/api/movie-detail?slug=${slug}`, {
+    cache: "no-store",
+  });
 
-  return <MovieDetail movie={movieData} />;
+  if (!res.ok) {
+    throw new Error("Không lấy được dữ liệu phim");
+  }
+
+  const movie = await res.json();
+
+  return <MovieDetail movie={movie} />;
 }
