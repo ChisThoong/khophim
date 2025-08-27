@@ -19,43 +19,48 @@ export default function EpisodePage() {
   // Định dạng mong muốn: tap-1-server-0
   const parts = tapServer.split("-");
 
-  if (parts.length !== 4 || parts[0] !== "tap" || parts[2] !== "server") {
-    return <div>Định dạng URL không hợp lệ</div>;
-  }
+if (parts.length !== 4 || parts[2] !== "server") {
+  return <div>Định dạng URL không hợp lệ</div>;
+}
 
-  const tap = parseInt(parts[1], 10);
-  const server = parseInt(parts[3], 10);
+let tap: string | number = parts[1]; // mặc định là string
+const server = parseInt(parts[3], 10);
 
-  if (isNaN(tap) || isNaN(server)) {
+// Nếu là số thì convert thành number
+if (tap !== "full") {
+  const parsed = parseInt(tap, 10);
+  if (isNaN(parsed)) {
     return <div>Thông tin tập phim không hợp lệ</div>;
   }
+  tap = parsed;
+}
 
-  // Gọi API để lấy link tập phim
-  useEffect(() => {
-    const fetchEpisode = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `/api/episode?slug=${slug}&server=${server}&episode=${tap}`,
-          { cache: "no-store" }
-        );
+// Gọi API để lấy link tập phim
+useEffect(() => {
+  const fetchEpisode = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `/api/episode?slug=${slug}&server=${server}&episode=${tap}`,
+        { cache: "no-store" }
+      );
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Không lấy được dữ liệu");
-        }
-
-        const data = await res.json();
-        setEpisodeData(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Không lấy được dữ liệu");
       }
-    };
 
-    fetchEpisode();
-  }, [slug, tap, server]);
+      const data = await res.json();
+      setEpisodeData(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEpisode();
+}, [slug, tap, server]);
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>Lỗi: {error}</div>;

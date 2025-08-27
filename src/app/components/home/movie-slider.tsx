@@ -10,6 +10,7 @@ import Badge from "../global/badge";
 import { decode } from "he";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules"; 
+import { useRouter } from "next/navigation";
 
 import "swiper/css";
 import "swiper/css/effect-fade"; 
@@ -17,6 +18,7 @@ import "swiper/css/effect-fade";
 export default function MovieSlider() {
   const swiperRef = useRef<any>(null);
   const [movies, setMovies] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/get-movies-slider")
@@ -49,7 +51,11 @@ export default function MovieSlider() {
               ?.filter((c: string) => c.startsWith("ophim_categories-"))
               .map((c: string) => c.replace("ophim_categories-", "")) || [];
           return (
-            <SwiperSlide key={m.id}>
+            <SwiperSlide
+              key={m.id}
+              onClick={() => router.push(`/movie/${m.slug}`)} 
+              className="cursor-pointer"
+            >
               <div
                 className="w-full h-full bg-cover bg-center relative flex items-center"
                 style={{ backgroundImage: `url(${m.meta.ophim_poster_url[0]})` }}
@@ -100,15 +106,18 @@ export default function MovieSlider() {
 
                   {/* Buttons */}
                   <div className="flex gap-4 mt-6">
-                  <a
-                    href={m.link}
-                    className="w-18 h-18 flex items-center justify-center rounded-full 
+                  <button
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        router.push(`/movie/${m.slug}`);
+                      }}
+                      className="w-18 h-18 flex items-center justify-center rounded-full 
                                 bg-gradient-to-tr from-[rgb(254,207,89)] to-[rgb(255,241,204)] 
                                 text-black transition duration-300 transform 
                                 hover:scale-110 hover:shadow-[0_0_40px_rgb(255,241,204)]"
                     >
-                    <Play className="w-6 h-6" />
-                    </a>
+                      <Play className="w-6 h-6" />
+                    </button>
                     {/* <button className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 text-white">
                       <Heart className="w-6 h-6" />
                     </button>

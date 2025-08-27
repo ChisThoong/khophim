@@ -192,7 +192,7 @@ const MovieDetail = ({ movie }: MovieDetailProps) => {
               className="w-[40%] h-auto object-cover rounded-xl mb-2"
               priority
             />
-            <h2 className="text-2xl font-bold mb-2">{movie.title}</h2>
+            <h2 className="text-2xl font-bold mb-2">{cleanText(movie.title)}</h2>
             <h3 className="text-base text-yellow-200 font-bold mb-2">{originTitle}</h3>
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4 mt-2">
@@ -333,11 +333,11 @@ const MovieDetail = ({ movie }: MovieDetailProps) => {
                         </div>
 
                         <div className="flex-1 min-w-[100px] relative z-10 pt-12">
-                          <h3 className="text-sm font-semibold mb-2">{movie.title}</h3>
+                          <h3 className="text-sm font-semibold mb-2">{cleanText(movie.title)}</h3>
                           <button
                             onClick={() => {
                               setSelectedEpisode(1);
-                              router.push(`/movie/${slug}/tap-1-server-0`); // phim lẻ mặc định server 0
+                              router.push(`/movie/${slug}/tap-full-server-0`); // phim lẻ mặc định server 0
                             }}
                             className="px-3 py-1 rounded-md bg-white text-black text-xs font-medium hover:bg-gray-200 transition"
                           >
