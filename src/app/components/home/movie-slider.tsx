@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-
 import "swiper/css";
 import Image from "next/image";
 import { Play, Heart, Info } from "lucide-react";
@@ -9,26 +8,35 @@ import { CATEGORIES_MAP } from "@/constants/categories";
 import Badge from "../global/badge";
 import { decode } from "he";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade } from "swiper/modules"; 
+import { Autoplay, EffectFade } from "swiper/modules";
 import { useRouter } from "next/navigation";
-
 import "swiper/css";
-import "swiper/css/effect-fade"; 
+import "swiper/css/effect-fade";
+import LoadingComponent from "../ui/loading";
 
 export default function MovieSlider() {
   const swiperRef = useRef<any>(null);
   const [movies, setMovies] = useState<any[]>([]);
   const router = useRouter();
-
+  const [loading, setLoading] = useState(true); 
   useEffect(() => {
+    setLoading(true); 
     fetch("/api/get-movies-slider")
       .then((res) => res.json())
-      .then((data) => setMovies(data));
+      .then((data) => {
+        setMovies(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      })
+      .finally(() => {
+        setLoading(false); 
+      });
   }, []);
 
-//   if (movies.length === 0) {
-//     return <div className="text-center text-gray-400">Đang tải phim...</div>;
-//   }
+  if (loading) {
+    return <LoadingComponent />;
+  }
 
   return (
     <div className="relative w-full h-[100vh]">
@@ -41,7 +49,6 @@ export default function MovieSlider() {
         className="w-full h-full"
       >
         {movies.map((m, idx) => {
-          // lọc genres từ class_list
           const genres =
             m.class_list
               ?.filter((c: string) => c.startsWith("ophim_genres-"))
@@ -53,18 +60,18 @@ export default function MovieSlider() {
           return (
             <SwiperSlide
               key={m.id}
-              onClick={() => router.push(`/movie/${m.slug}`)} 
+              onClick={() => router.push(`/movie/${m.slug}`)}
               className="cursor-pointer"
             >
               <div
                 className="w-full h-full bg-cover bg-center relative flex items-center"
                 style={{ backgroundImage: `url(${m.meta.ophim_poster_url[0]})` }}
               >
-              <div className="absolute inset-0"> 
-                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_70%,rgba(0,0,0,0.6)_100%)]"></div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
-              </div>                
-              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.3)_0.5px,transparent_0.5px)] [background-size:3px_3px]"></div>
+                <div className="absolute inset-0">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_70%,rgba(0,0,0,0.6)_100%)]"></div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
+                </div>
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.3)_0.5px,transparent_0.5px)] [background-size:3px_3px]"></div>
 
                 <div className="relative z-10 max-w-2xl px-10 text-white space-y-4">
                   {m.ophim_title_img ? (
@@ -104,11 +111,10 @@ export default function MovieSlider() {
                     {decode(m.excerpt || "")}
                   </div>
 
-                  {/* Buttons */}
                   <div className="flex gap-4 mt-6">
-                  <button
+                    <button
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         router.push(`/movie/${m.slug}`);
                       }}
                       className="w-18 h-18 flex items-center justify-center rounded-full 
@@ -118,16 +124,9 @@ export default function MovieSlider() {
                     >
                       <Play className="w-6 h-6" />
                     </button>
-                    {/* <button className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 text-white">
-                      <Heart className="w-6 h-6" />
-                    </button>
-                    <button className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 hover:bg-gray-600 text-white">
-                      <Info className="w-6 h-6" />
-                    </button> */}
                   </div>
                 </div>
 
-                {/* Thumbnail navigator */}
                 <div className="absolute bottom-5 right-5 flex gap-3 z-20">
                   {movies.map((t, tIdx) => (
                     <div

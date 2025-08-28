@@ -15,15 +15,15 @@ export async function GET(request: Request) {
     }
 
     const res = await fetch(
-      `https://phimchill.site/wp-json/ophim/v1/movie/${slug}/episode/${server}/${episode}`,
+      `https://phimchill.site/wp-json/ophim/v1/movie/movie-detail?slug=${slug}&server=${server}&episode=${episode}`,
       { cache: "no-store" }
     );
-
+    
     if (!res.ok) {
       const text = await res.text();
       console.error("WordPress error:", text);
       return NextResponse.json(
-        { error: "Không lấy được dữ liệu tập phim từ WP" },
+        { error: "Không lấy được dữ liệu tập phim" },
         { status: res.status }
       );
     }

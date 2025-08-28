@@ -11,8 +11,10 @@ import { cleanText } from "@/lib/cleanText";
 import { CountryMap } from "@/constants/countries";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LoadingComponent from "@/app/components/ui/loading";
 
 interface Episode {
+  name: string;
   number: number;
   title: string;
   duration?: string;
@@ -86,6 +88,7 @@ export default function EpisodePage() {
         }
 
         const episodeData = await episodeRes.json();
+        
         setEpisodeData(episodeData);
 
         // Set selected episode
@@ -115,8 +118,8 @@ export default function EpisodePage() {
   }, [slug, tap, server, validationError]);
 
   if (validationError) return <div className="min-h-screen bg-[#191a24] text-white flex items-center justify-center">{validationError}</div>;
-  if (loading) return <div className="min-h-screen bg-[#191a24] text-white flex items-center justify-center">Đang tải...</div>;
-  if (error) return <div className="min-h-screen bg-[#191a24] text-white flex items-center justify-center">Lỗi: {error}</div>;
+  if (loading) return <LoadingComponent />;
+    if (error) return <div className="min-h-screen bg-[#191a24] text-white flex items-center justify-center">Lỗi: {error}</div>;
   if (!episodeData) return <div className="min-h-screen bg-[#191a24] text-white flex items-center justify-center">Không có dữ liệu</div>;
 
   // Process movie data
@@ -139,7 +142,7 @@ export default function EpisodePage() {
   const country = CountryMap[countrySlug] || "";
 
   // Parse episodes list
-  const episodes_list: EpisodeServer[] = movie.episodes_list && movie.episodes_list.length
+  const episodes_list: EpisodeServer[] = movie.ophim_episode_list && movie.episodes_list.length
     ? movie.episodes_list
     : movie.meta?.ophim_episode_list?.[0]
       ? (() => {
@@ -152,7 +155,8 @@ export default function EpisodePage() {
 
               Object.values(server.server_data || {}).forEach((ep: any) => {
                 serverEpisodes.push({
-                  number: parseInt(ep.name),
+                  name: ep.name, 
+                  number: parseInt(ep.name.replace(/[A-Za-z]/g, '') || '1'), 
                   title: ep.filename,
                   link_m3u8: ep.link_m3u8,
                   link_embed: ep.link_embed,
@@ -175,11 +179,15 @@ export default function EpisodePage() {
         })()
       : [];
 
+  const currentEpisode = episodes_list[server || 0]?.episodes.find(
+    (ep) => ep.number === selectedEpisode
+  );
   const tabs = ["Tập phim", "Đề xuất"];
 
-  const handleEpisodeClick = (episodeNumber: number, serverIndex: number) => {
-    setSelectedEpisode(episodeNumber);
-    router.push(`/movie/${slug}/tap-${episodeNumber}-server-${serverIndex}`);
+  const handleEpisodeClick = (episodeName: string, serverIndex: number) => {
+    const number = parseInt(episodeName.replace(/[A-Za-z]/g, '') || '1');
+    setSelectedEpisode(number);
+    router.push(`/movie/${slug}/tap-${episodeName}-server-${serverIndex}`);
   };
 
   return (
@@ -195,13 +203,13 @@ export default function EpisodePage() {
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <span className="font-bold text-xl">
-          Xem phim {cleanText(movie?.title || episodeData?.title)} 
+          Xem phim {cleanText(movie?.title)} 
           </span>
         </div>
           {/* Video Player Section */}
           <div className="mb-8">
             <div className="aspect-video w-full bg-black rounded-xl overflow-hidden shadow-2xl">
-              <Player src={episodeData.link_m3u8} />
+            <Player src={currentEpisode?.link_m3u8 || ""} />
             </div>
             
           </div>
@@ -282,18 +290,7 @@ export default function EpisodePage() {
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Right: 1/3 sidebar */}
-            <div className="lg:col-span-1">
-              {/* Ở đây bạn có thể thêm sidebar: related movies, cast, ads... */}
-            </div>
-          </div>
-
-
-
-
-          <div className="lg:col-span-1">
+              <div className="lg:col-span-1">
               <div
                 className="flex flex-col rounded-[3rem_1.25rem_1.25rem_1.25rem] p-6"
                 style={{
@@ -356,7 +353,7 @@ export default function EpisodePage() {
                       // Series with episodes
                       episodes_list.length > 0 ? (
                         episodes_list.map((serverData, idx) => (
-                          <div key={idx} className="mb-6">
+                          <div key={`server-${idx}`} className="mb-6">
                             <Badge
                               variant="outline"
                               className="h-9 flex items-center mb-4"
@@ -364,12 +361,12 @@ export default function EpisodePage() {
                             >
                               {serverData.server_name}
                             </Badge>
-
+  
                             <div className="grid grid-cols-2 md:grid-cols-8 gap-2">
-                              {serverData.episodes.map((ep) => (
+                              {serverData.episodes.map((ep, epIdx) => (
                                 <button
-                                  key={ep.number}
-                                  onClick={() => handleEpisodeClick(ep.number, idx)}
+                                  key={`${idx}-${ep.name}`} // Sử dụng ep.name để tạo key duy nhất
+                                  onClick={() => handleEpisodeClick(ep.name, idx)}
                                   className={`flex items-center justify-center gap-2 px-4 py-4 rounded-md transition-all duration-300 ${
                                     selectedEpisode === ep.number && idx === server
                                       ? "bg-[#ffd875] text-black"
@@ -377,7 +374,7 @@ export default function EpisodePage() {
                                   }`}
                                 >
                                   <Play className="w-4 h-4" />
-                                  <span className="font-bold text-sm">Tập {ep.number}</span>
+                                  <span className="font-bold text-sm">Tập {ep.name}</span> {/* Hiển thị "1A", "1B", ... */}
                                 </button>
                               ))}
                             </div>
@@ -401,6 +398,14 @@ export default function EpisodePage() {
                 )}
               </div>
             </div>
+            </div>
+
+            {/* Right: 1/3 sidebar */}
+            <div className="lg:col-span-1">
+              {/* Ở đây bạn có thể thêm sidebar: related movies, cast, ads... */}
+            </div>
+          </div>
+       
         </div>
       </div>
     
