@@ -2,10 +2,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, Search, ChevronDown } from "lucide-react";
 import MobileMenu from "./mobile-menu";
+import Link from "next/link";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<null | "theloai" | "quocgia">(null);
+  const [scrolled, setScrolled] = useState(false);
 
   const theLoaiRef = useRef<HTMLDivElement>(null);
   const quocGiaRef = useRef<HTMLDivElement>(null);
@@ -28,16 +30,35 @@ export default function Navbar() {
     };
   }, []);
 
+  // Lắng nghe scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 w-full z-50 mt-2">
-      <div className="max-full mx-auto flex items-center  px-6 py-3">
+    <header
+      className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
+        scrolled ? "bg-black/80 backdrop-blur" : "bg-transparent"
+      }`}
+    >
+      <div className="max-full mx-auto flex items-center px-6 py-3">
         {/* Logo */}
         <div className="flex items-center gap-3">
+        <Link href="/">
           <img
             src="/images/logo.svg"
             alt="RoPhim Logo"
-            className="h-10 w-auto"
+            className="h-10 w-auto cursor-pointer"
           />
+        </Link>
           <div className="hidden md:flex flex-1 w-full mx-8 max-w-3xl">
             <div className="relative w-full">
               <input
@@ -50,15 +71,12 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Search desktop */}
-        
-
         {/* Menu desktop */}
         <nav className="hidden md:flex justify-start gap-12 text-sm font-[550] text-[14px] relative">
           {/* Thể loại dropdown */}
           <div className="relative" ref={theLoaiRef}>
             <button
-              className="flex items-center gap-1  transition"
+              className="flex items-center gap-1 transition"
               onClick={() =>
                 setOpenMenu(openMenu === "theloai" ? null : "theloai")
               }
@@ -91,8 +109,6 @@ export default function Navbar() {
           <a href="#" className="hover:text-yellow-400 transition">
             Chiếu rạp
           </a>
-
-          
 
           {/* Quốc gia dropdown */}
           <div className="relative" ref={quocGiaRef}>
@@ -128,7 +144,6 @@ export default function Navbar() {
             rel="noopener noreferrer"
             className="hidden md:flex items-center gap-2 border border-white/50 text-white px-4 py-2 rounded-md hover:bg-white/10 transition font-[550] text-[14px]"
           >
-            {/* Telegram icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 240 240"
