@@ -58,9 +58,10 @@ export default function MovieHoverOverlay({
   isVisible, 
   index = 0 
 }: MovieHoverOverlayProps) {
+  const router = useRouter();
   if (!isVisible) return null;
 
-  const router = useRouter();
+ 
 
   const handleWatchNow = (e: React.MouseEvent) => {
     e.preventDefault();
