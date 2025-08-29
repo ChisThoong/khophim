@@ -3,6 +3,7 @@
 import { Play, Heart, Info } from "lucide-react";
 import Badge from "./badge";
 import { GENRES_MAP } from "@/constants/genres";
+import { useRouter } from "next/navigation";
 
 interface MovieMeta {
     ophim_episode?: string[]; // ["Hoàn Tất (20/20)"]
@@ -59,20 +60,11 @@ export default function MovieHoverOverlay({
 }: MovieHoverOverlayProps) {
   if (!isVisible) return null;
 
-  const mockData = {
-    imdb_rating: movie.imdb_rating || 5.0,
-    year: movie.year || 2025,
-    episode_current: movie.episode_current || "Phần 1",
-    episode_total: movie.episode_total || "Tập 54",
-    genres: movie.genres || ["Chính Kịch", "Tình Cảm", "Gia Đình"],
-    country: movie.country || ["Đối Thủ Ồng"]
-  };
+  const router = useRouter();
 
-  
   const handleWatchNow = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Redirect to movie link
-    window.open(movie.link, '_blank', 'noopener,noreferrer');
+    router.push(`/movie/${movie.slug}`)
   };
 
   const handleAddToFavorites = (e: React.MouseEvent) => {
@@ -123,6 +115,7 @@ export default function MovieHoverOverlay({
         <div className="flex gap-3">
           <button
             onClick={handleWatchNow}
+            
             className="flex items-center gap-2 bg-gradient-to-tr from-[rgb(254,207,89)] to-[rgb(255,241,204)] 
                                 text-black transition duration-300 transform 
                                 hover:scale-110 hover:shadow-[0_0_40px_rgb(255,241,204)] px-6 py-3 rounded-lg font-bold transition-colors text-sm"

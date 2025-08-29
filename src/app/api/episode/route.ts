@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+const API_HOST = process.env.NEXT_PUBLIC_HOST_API;
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     const res = await fetch(
-      `https://phimchill.site/wp-json/ophim/v1/movie/movie-detail?slug=${slug}&server=${server}&episode=${episode}`,
+      `${API_HOST}/movie/movie-detail?slug=${slug}&server=${server}&episode=${episode}`,
       { cache: "no-store" }
     );
     

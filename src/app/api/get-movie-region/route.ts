@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+const API_HOST = process.env.NEXT_PUBLIC_HOST_API;
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const perPage = searchParams.get("per_page") || "10";
 
     const res = await fetch(
-      `https://phimchill.site/wp-json/ophim/v1/region/${region}?per_page=${perPage}`,
+      `${API_HOST}/region/${region}?per_page=${perPage}`,
       { cache: "no-store" }
     );
 

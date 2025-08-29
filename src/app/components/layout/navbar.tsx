@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Menu, Search, ChevronDown } from "lucide-react";
+import { Menu, Search, ChevronDown, X, Loader2 } from "lucide-react";
 import MobileMenu from "./mobile-menu";
 import Link from "next/link";
+import Badge from "../global/badge";
+import { cleanText } from "@/lib/cleanText";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -12,6 +14,12 @@ export default function Navbar() {
   const theLoaiRef = useRef<HTMLDivElement>(null);
   const quocGiaRef = useRef<HTMLDivElement>(null);
 
+  // search
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,6 +51,29 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+    const delay = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/search?tag=${encodeURIComponent(query)}&per_page=5`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : []);
+        setShowDropdown(true);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+    return () => clearTimeout(delay);
+  }, [query]);
+
+
+  
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
@@ -52,22 +83,106 @@ export default function Navbar() {
       <div className="max-full mx-auto flex items-center px-6 py-3">
         {/* Logo */}
         <div className="flex items-center gap-3">
-        <Link href="/">
-          <img
-            src="/images/logo.svg"
-            alt="RoPhim Logo"
-            className="h-10 w-auto cursor-pointer"
-          />
-        </Link>
-          <div className="hidden md:flex flex-1 w-full mx-8 max-w-3xl">
+          <Link href="/">
+            <img
+              src="/images/logo.svg"
+              alt="RoPhim Logo"
+              className="h-10 w-auto cursor-pointer"
+            />
+          </Link>
+
+          {/* Search */}
+          <div className="hidden md:flex flex-1 w-full mx-8 max-w-3xl" ref={searchRef}>
             <div className="relative w-full">
               <input
                 type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm kiếm phim..."
                 className="w-[400px] rounded-md bg-white/20 border border-transparent text-sm px-4 py-3 pl-10 text-white placeholder-gray-300 focus:outline-none focus:border-white/50"
               />
               <Search className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
-            </div>
+              {query && (
+                <button
+                  className="absolute right-3 top-3.5 text-gray-400 hover:text-white"
+                  onClick={() => setQuery("")}
+                >
+                  <X size={16} />
+                </button>
+              )}
+
+              {/* Dropdown kết quả */}
+              {showDropdown && (
+                <div className="absolute mt-2 w-full bg-black/95 rounded-md shadow-lg ">
+                 
+                  {/* Loading */}
+                  {loading && (
+                    <div className="flex items-center justify-center py-6 text-gray-400">
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin text-gray-300" />
+                      Đang tìm kiếm...
+                    </div>
+                  )}
+
+                  {/* Results */}
+                  {!loading && results.length > 0 && (
+                    <>
+                     <div className="p-3 text-sm text-gray-400">Danh sách phim</div>
+                      {results.slice(0, 5).map((movie) => (
+                        
+                        <Link
+                          key={movie.id}
+                          href={`/movies/${movie.slug}`}
+                          className="flex items-center gap-3 px-3 py-4 hover:bg-white/10 transition"
+                          onClick={() => setShowDropdown(false)}
+                        >
+                          
+                          <img
+                            src={`https://img.ophim.live/uploads/movies/${movie.slug}-thumb.jpg`}
+                            alt={movie.title}
+                            className="w-14 h-20 object-cover rounded"
+                          />
+                          <div className="flex flex-col text-sm mt-1">
+                            <span className="text-white font-medium">{cleanText(movie.title)}</span>
+                            <span className="text-gray-400 text-xs line-clamp-1">
+                              {(movie.meta?.ophim_original_title) || ""}
+                            </span>
+                            <div className="flex items-center gap-2 text-gray-400 text-xs ">
+                              {movie.meta?.ophim_quality && <Badge variant="white" className = "p-0">{movie.meta.ophim_quality}</Badge>
+}
+                              {movie.meta?.ophim_year && <Badge variant="outline">{movie.meta.ophim_year}</Badge>
+                            }
+                              {movie.meta?.ophim_runtime && <Badge variant="outline">{movie.meta.ophim_runtime}</Badge>
+                            }
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+
+                      <Link
+                        href={`/search?q=${encodeURIComponent(query)}`}
+                        className="block text-center text-sm text-yellow-200 px-3 py-2 border-t border-gray-700"
+                        onClick={() => setShowDropdown(false)}
+                      >
+                        Toàn bộ kết quả
+                      </Link>
+                    </>
+                  )}
+
+                  {/* Không có kết quả */}
+                  {!loading && results.length === 0 && query.trim() && (
+                    <div className="py-4 text-center text-sm text-gray-400">
+                      Không tìm thấy kết quả
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {showDropdown && !loading && results.length === 0 && query.trim() && (
+                <div className="absolute mt-2 w-full bg-black/95 border border-gray-700 rounded-md shadow-lg p-3 text-sm text-gray-400">
+                  Không tìm thấy kết quả
+                </div>
+              )}
+            </div>  
           </div>
         </div>
 
@@ -97,16 +212,16 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <a href="#" className="hover:text-yellow-400 transition">
+          <a href="/phim-le" className="hover:text-yellow-400 transition">
             Phim lẻ
           </a>
-          <a href="#" className="hover:text-yellow-400 transition">
+          <a href="phim-bo" className="hover:text-yellow-400 transition">
             Phim bộ
           </a>
-          <a href="#" className="hover:text-yellow-400 transition">
+          <a href="phim-hoat-hinh" className="hover:text-yellow-400 transition">
             Hoạt hình
           </a>
-          <a href="#" className="hover:text-yellow-400 transition">
+          <a href="phim-chieu-rap" className="hover:text-yellow-400 transition">
             Chiếu rạp
           </a>
 

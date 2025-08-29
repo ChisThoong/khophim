@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+const API_HOST = process.env.NEXT_PUBLIC_HOST_API;
 
 export async function GET(request: Request) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
     }
 
     const res = await fetch(
-      `https://phimchill.site/wp-json/ophim/v1/movie/${slug}`,
+      `${API_HOST}/movie/${slug}`,
       { cache: "no-store" }
     );
 

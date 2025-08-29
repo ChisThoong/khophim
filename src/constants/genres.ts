@@ -1,4 +1,5 @@
 export const GENRES_MAP: Record<string, string> = {
+    "": "Tất cả",
     "bi-an": "Bí ẩn",
     "hai-huoc": "Hài hước",
     "khoa-hoc": "Khoa học",

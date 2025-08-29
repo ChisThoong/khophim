@@ -1,15 +1,21 @@
 import { NextResponse } from "next/server";
+const API_HOST = process.env.NEXT_PUBLIC_HOST_API;
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const region = searchParams.get("region") || "trung-quoc";
+    const tag = searchParams.get("tag") || "";
     const perPage = searchParams.get("per_page") || "10";
 
-    const res = await fetch(
-      `https://phimchill.site/wp-json/wp/v2/ophim?ophim_regions=${region}&per_page=${perPage}&orderby=date&order=desc`,
-      { cache: "no-store" }
-    );
+    if (!tag) {
+      return NextResponse.json({ error: "Thiếu tag" }, { status: 400 });
+    }
+
+    const url = new URL("https://phimchill.site/wp-json/ophim/v1/search");
+    url.searchParams.set("tag", tag);
+    url.searchParams.set("per_page", perPage);
+
+    const res = await fetch(url.toString(), { cache: "no-store" });
 
     if (!res.ok) {
       return NextResponse.json(
@@ -19,7 +25,6 @@ export async function GET(request: Request) {
     }
 
     const data = await res.json();
-
     return NextResponse.json(data);
   } catch (error) {
     console.error("API Error:", error);

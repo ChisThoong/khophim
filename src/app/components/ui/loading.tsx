@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const LoadingComponent: React.FC = () => {
   return (
-    <div className="flex items-center justify-center h-screen bg-[#191a24] font-sans">
+    <div className="relative z-[999999] flex items-center justify-center h-screen bg-[#191a24] font-sans">
       <div className="flex flex-col items-center text-white container-animation">
         <div>
           <Image
@@ -41,7 +41,7 @@ const LoadingComponent: React.FC = () => {
           }
 
           .container-animation {
-            animation: containerZoom 2s ease-in-out forwards;
+            animation: containerZoom 3s ease-in-out forwards;
           }
         `}
       </style>

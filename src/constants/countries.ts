@@ -1,4 +1,5 @@
 export const CountryMap: Record<string, string> = {
+    "": "Tất cả",
     "vn": "Việt Nam",
     "trung-quoc": "Trung Quốc",
     "kr": "Hàn Quốc",

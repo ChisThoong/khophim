@@ -8,33 +8,34 @@ import { motion, AnimatePresence } from "framer-motion";
 import Badge from "../global/badge";
 
 interface MovieMeta {
-  ophim_episode?: string[]; // ["Hoàn Tất (20/20)"]
-  ophim_episode_list?: any[]; // chưa rõ chi tiết cấu trúc, nên để any[]
-  ophim_fetch_info_url?: string[]; // ["https://ophim1.com/phim/..."]
-  ophim_fetch_ophim_id?: string[]; // ["68a5e7830e6dc506bdff6526"]
-  ophim_fetch_ophim_update_time?: string[]; // ["2025-08-20T22:19:41.000Z"]
+  ophim_episode?: string[];
+  ophim_episode_list?: any[];
+  ophim_fetch_info_url?: string[];
+  ophim_fetch_ophim_id?: string[];
+  ophim_fetch_ophim_update_time?: string[];
   ophim_is_copyright?: string[];
-  ophim_lang?: string[]; // ["Lồng Tiếng"]
-  ophim_movie_formality?: string[]; // ["tv_series"]
-  ophim_movie_status?: string[]; // ["completed"]
-  ophim_original_title?: string[]; // ["Awfully Lawful"]
-  ophim_poster_url?: string[]; // ["...-poster.jpg"]
-  ophim_quality?: string[]; // ["HD"]
+  ophim_lang?: string[];
+  ophim_movie_formality?: string[];
+  ophim_movie_status?: string[];
+  ophim_original_title?: string[];
+  ophim_poster_url?: string[];
+  ophim_quality?: string[];
   ophim_rating?: string[];
-  ophim_runtime?: string[]; // ["45 phút/tập"]
+  ophim_runtime?: string[];
   ophim_showtime_movies?: string[];
-  ophim_thumb_url?: string[]; // ["...-thumb.jpg"]
-  ophim_total_episode?: string[]; // ["20 Tập"]
+  ophim_thumb_url?: string[];
+  ophim_total_episode?: string[];
   ophim_trailer_url?: string[];
-  ophim_view?: string[]; // ["64"]
+  ophim_view?: string[];
   ophim_votes?: string[];
-  ophim_year?: string[]; // ["2013"]
+  ophim_year?: string[];
 }
+
 interface Movie {
   id: number;
   slug: string;
   link: string;
-  title: string ;
+  title: string;
   excerpt?: { rendered: string };
   imdb_rating?: number;
   year?: number;
@@ -43,7 +44,7 @@ interface Movie {
   genres?: string[];
   country?: string[];
   meta?: MovieMeta;
-  class_list:string []
+  class_list: string[];
 }
 
 interface SessionMovieProps {
@@ -53,8 +54,14 @@ interface SessionMovieProps {
   gradient?: string;
 }
 
-export default function SessionMovie({ region, title, limit = 10, gradient }: SessionMovieProps) {
+export default function SessionMovie({
+  region,
+  title,
+  limit = 10,
+  gradient,
+}: SessionMovieProps) {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
   const [hoveredMovie, setHoveredMovie] = useState<number | null>(null);
   const [hoveredMovieData, setHoveredMovieData] = useState<{
     movie: Movie;
@@ -70,11 +77,16 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const res = await fetch(`/api/get-movie-region?region=${region}&per_page=${limit}`);
+        setLoading(true);
+        const res = await fetch(
+          `/api/get-movie-region?region=${region}&per_page=${limit}`
+        );
         const data = await res.json();
         setMovies(data);
       } catch (error) {
         console.error("Lỗi khi load movies:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchMovies();
@@ -92,7 +104,11 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
     }
   };
 
-  const handleMouseEnter = (movie: Movie, index: number, event: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = (
+    movie: Movie,
+    index: number,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       handleMouseLeave();
@@ -110,20 +126,20 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
     timeoutRef.current = setTimeout(() => {
       setHoveredMovie(movie.id);
       setHoveredMovieData({ movie, poster, index, position });
-    },800);
+    }, 800);
   };
 
   const handleMouseLeave = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-  
+
     setTimeout(() => {
       if (!isHoveringOverlayRef.current) {
         setHoveredMovie(null);
         setHoveredMovieData(null);
       }
-    }, 100); 
+    }, 100);
   };
 
   const handleOverlayMouseEnter = () => {
@@ -140,121 +156,133 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
   };
 
   return (
-    <>
-      <section className="flex gap-8 py-6 px-6 w-full relative z-0">
-        {/* LEFT TITLE */}
-        <div className="w-54 flex-shrink-0 flex flex-col justify-center">
-          <div>
-            <h2
-              className="text-white mb-8"
-              style={{
-                background: `${gradient}`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontSize: "28px",
-                fontWeight: 700,
-                lineHeight: "1.2",
-                letterSpacing: "1px",
-              }}
-            >
-              {title}
-            </h2>
-          </div>
-          <div>
-            <Link
-              href={`/region/${region}`}
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group"
-            >
-              <span className="text-base">Xem tất cả</span>
-              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
+    <section className="relative flex gap-8 py-6 px-6 w-full">
+      {/* LEFT TITLE */}
+      <div className="w-54 flex-shrink-0 flex flex-col justify-center">
+        <h2
+          className="mb-8"
+          style={{
+            background: gradient,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontSize: "28px",
+            fontWeight: 700,
+            lineHeight: "1.2",
+            letterSpacing: "1px",
+          }}
+        >
+          {title}
+        </h2>
+        <Link
+          href={`/region/${region}`}
+          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group"
+        >
+          <span className="text-base">Xem tất cả</span>
+          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+        </Link>
+      </div>
 
-        {/* MOVIES LIST */}
-        <div className="flex-1 relative w-54">
-          {/* SCROLL BUTTON LEFT */}
-          <button
-            onClick={() => scroll("left")}
-            className="absolute left-0 top-1/3 -translate-y-1/2 z-20 p-3 bg-white rounded-full transition-all duration-200 shadow-lg"
-            style={{ marginLeft: "-1.5rem" }}
+      {/* MOVIES LIST */}
+      <div className="flex-1 relative w-54 min-h-[260px]">
+        {/* SCROLL BUTTON LEFT */}
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/3 -translate-y-1/2 z-20 p-3 bg-white rounded-full shadow-lg"
+          style={{ marginLeft: "-1.5rem" }}
+        >
+          <ChevronLeft className="text-black w-5 h-5" />
+        </button>
+
+        <div className="overflow-visible w-full">
+          <div
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            style={{
+              scrollSnapType: "x mandatory",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              maxWidth: "100%",
+              display: "flex",
+            }}
           >
-            <ChevronLeft className="text-black w-5 h-5" />
-          </button>
-
-          {/* CARDS */}
-          <div className="overflow-visible w-full">
-            <div
-              ref={scrollRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-              style={{
-                scrollSnapType: "x mandatory",
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                maxWidth: "100%",
-                display: "flex",
-              }}
-            >
-              {movies.map((movie, index) => {
-                const poster = `https://img.ophim.live/uploads/movies/${movie.slug}-poster.jpg`;
-                return (
+            {loading
+              ? 
+                Array.from({ length: limit }).map((_, i) => (
                   <div
-                    key={movie.id}
-                    className="flex-none snap-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 max-w-[280px] min-w-[200px] relative"
+                    key={i}
+                    className="flex-none snap-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 max-w-[280px] min-w-[200px] "
                   >
-                    <div
-                      className="rounded-xl group relative"
-                      onMouseLeave={handleMouseLeave}
-                      onMouseEnter={(e) => handleMouseEnter(movie, index, e)}
-                    >
-                      <a  href={`/movie/${movie.slug}`} target="_blank" rel="noopener noreferrer" className="block">
-                        <div className="relative rounded-xl overflow-hidden">
-                          <img
-                            alt={movie.title}
-                            src={poster}
-                            className="w-full h-40 object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://picsum.photos/280/320";
-                            }}
-                          />
-                        </div>
-                        <div className="absolute bottom-2 left-2 flex gap-2 flex-wrap">
-                          <Badge variant="default">{movie.meta?.ophim_quality?.[0] || "----"}</Badge>
-                          <Badge variant="green">
-                            {movie.meta?.ophim_episode?.[0] === "Tập 0"
-                              ? "Full"
-                              : movie.meta?.ophim_episode?.[0] || "----"}
-                          </Badge>
-                        </div>
-                      </a>
-                    </div>
-
-                    <div className="p-4">
-                      <h4 className="text-white text-md font-bold mb-2 line-clamp-2 leading-tight">
-                        {movie.title}
-                      </h4>
-                      <p className="text-gray-400 text-sm truncate">
-                        {movie?.meta?.ophim_original_title?.[0] || ""}
-                      </p>
+                    <div className="animate-pulse">
+                      <div className="w-full h-40 bg-gray-700 rounded-xl mb-3" />
+                      <div className="h-4 bg-gray-700 rounded w-3/4" />
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))
+              : movies.map((movie, index) => {
+                  const poster = `https://img.ophim.live/uploads/movies/${movie.slug}-poster.jpg`;
+                  return (
+                    <div
+                      key={movie.id}
+                      className="flex-none snap-start w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 max-w-[280px] min-w-[200px] relative"
+                    >
+                      <div
+                        className="rounded-xl group relative"
+                        onMouseLeave={handleMouseLeave}
+                        onMouseEnter={(e) =>
+                          handleMouseEnter(movie, index, e)
+                        }
+                      >
+                        <a href={`/movie/${movie.slug}`} className="block">
+                          <div className="relative rounded-xl overflow-hidden">
+                            <img
+                              alt={movie.title}
+                              src={poster}
+                              className="w-full h-40 object-cover"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://picsum.photos/280/320";
+                              }}
+                            />
+                          </div>
+                          <div className="absolute bottom-2 left-2 flex gap-2 flex-wrap">
+                            <Badge variant="default">
+                              {movie.meta?.ophim_quality?.[0] || "----"}
+                            </Badge>
+                            <Badge variant="green">
+                              {movie.meta?.ophim_episode?.[0] === "Tập 0"
+                                ? "Full"
+                                : movie.meta?.ophim_episode?.[0] || "----"}
+                            </Badge>
+                          </div>
+                        </a>
+                      </div>
+
+                      <div className="p-4">
+                        <h4 className="text-white text-md font-bold mb-2 line-clamp-2 leading-tight">
+                          {movie.title}
+                        </h4>
+                        <p className="text-gray-400 text-sm truncate">
+                          {movie?.meta?.ophim_original_title?.[0] || ""}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
           </div>
-
-          {/* SCROLL BUTTON RIGHT */}
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-0 top-1/3 -translate-y-1/2 z-20 p-3 rounded-full transition-all duration-200 shadow-lg bg-white"
-            style={{ marginRight: "-1.5rem" }}
-          >
-            <ChevronRight className="text-black w-5 h-5" />
-          </button>
         </div>
-      </section>
 
+        {/* SCROLL BUTTON RIGHT */}
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/3 -translate-y-1/2 z-20 p-3 rounded-full shadow-lg bg-white"
+          style={{ marginRight: "-1.5rem" }}
+        >
+          <ChevronRight className="text-black w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Hover Overlay */}
       <AnimatePresence>
         {hoveredMovieData && hoveredMovie === hoveredMovieData.movie.id && (
           <motion.div
@@ -296,6 +324,6 @@ export default function SessionMovie({ region, title, limit = 10, gradient }: Se
           display: none;
         }
       `}</style>
-    </>
+    </section>
   );
 }

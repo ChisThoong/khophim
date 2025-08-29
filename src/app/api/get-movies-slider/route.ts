@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-
+const API_HOST = process.env.NEXT_PUBLIC_HOST_API;
 export async function GET() {
   try {
-    const res = await fetch("https://phimchill.site/wp-json/ophim/v1/hot", {
+    const res = await fetch(`${API_HOST}/hot`, {
       next: { revalidate: 60 }, // cache 60s
     });
 
