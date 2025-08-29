@@ -218,7 +218,7 @@ export default function Navbar() {
           <a href="phim-bo" className="hover:text-yellow-400 transition">
             Phim bộ
           </a>
-          <a href="phim-hoat-hinh" className="hover:text-yellow-400 transition">
+          <a href="hoat-hinh" className="hover:text-yellow-400 transition">
             Hoạt hình
           </a>
           <a href="phim-chieu-rap" className="hover:text-yellow-400 transition">
